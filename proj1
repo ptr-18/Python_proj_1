@@ -1,0 +1,105 @@
+from tkinter import *
+from tkinter import messagebox
+import base64
+
+def main_screen():
+    def encrypt():
+        password = code.get()
+        if password == "":
+            messagebox.showerror("Error", "Please enter a password")
+        else:
+            # Store the password in a file
+            with open("password.txt", "w") as file:
+                file.write(password)
+
+            message = text1.get(1.0, END)
+            encode_message = message.encode("ascii")
+            base64_bytes = base64.b64encode(encode_message)
+            encrypt_msg = base64_bytes.decode("ascii")
+
+            screen1 = Toplevel(screen)
+            screen1.title("Encryption")
+            screen1.geometry("400x200")
+            screen1.configure(bg="#E6E6FA")
+
+            Label(screen1, text="ENCRYPT", font="arial", fg="black", bg="#E6E6FA").place(x=10, y=0)
+            text2 = Text(screen1, font="Rpbote 10", bg="white", relief=GROOVE, wrap=WORD, bd=0)
+            text2.place(x=10, y=40, width=380, height=150)
+            text2.insert(END, encrypt_msg)
+
+    def decrypt():
+        entered_password = code.get()
+        if entered_password == "":
+            messagebox.showerror("Error", "Please enter a password")
+            return
+
+        # Read the password from the file
+        try:
+            with open("password.txt", "r") as file:
+                password = file.read().strip()
+        except FileNotFoundError:
+            messagebox.showerror("Error", "Password file not found")
+            return
+
+        if entered_password != password:
+            messagebox.showerror("Error", "Incorrect password")
+            return
+
+        # Read the encrypted message
+        encrypted_message = text1.get(1.0, END).strip()
+
+        try:
+            # Decode and decrypt the message
+            decode_message = base64.b64decode(encrypted_message)
+            decrypted_message = decode_message.decode("ascii")
+
+            screen1 = Toplevel(screen)
+            screen1.title("Decryption")
+            screen1.geometry("400x200")
+            screen1.configure(bg="#E6E6FA")
+
+            Label(screen1, text="DECRYPT", font="arial", fg="black", bg="#E6E6FA").place(x=10, y=0)
+            text2 = Text(screen1, font="Rpbote 10", bg="white", relief=GROOVE, wrap=WORD, bd=0)
+            text2.place(x=10, y=40, width=380, height=150)
+            text2.insert(END, decrypted_message)
+        except:
+            messagebox.showerror("Error", "Invalid encrypted message")
+
+    def reset():
+        code.set("")
+        text1.delete(1.0, END)
+
+    def toggle_password():
+        if code_entry.cget('show') == '':
+            code_entry.config(show='*')
+        else:
+            code_entry.config(show='')
+
+    global screen
+    global code
+    global text1
+    screen = Tk()
+    screen.geometry("375x398")
+    screen.title("Encrypt")
+    screen.configure(bg="#E6E6FA")
+
+    Label(text="Enter text for encryption or decryption", fg="black", font=("calbri", 13), bg="#E6E6FA").place(x=10, y=10)
+    text1 = Text(font="calbri 12", bg="white", relief=GROOVE, wrap=WORD, bd=0)
+    text1.place(x=10, y=50, width=355, height=100)
+
+    Label(text="Enter password ", fg="black", font=("calbri", 13), bg="#E6E6FA").place(x=10, y=170)
+
+    code = StringVar()
+    code_entry = Entry(textvariable=code, width=19, bd=0, font=("calbri", 13), show="*", bg="white")
+    code_entry.place(x=10, y=200)
+
+    show_password_button = Button(text="Show", height="1", width="5", bg="blue", fg="white", bd=0, command=toggle_password)
+    show_password_button.place(x=295, y=200)
+
+    Button(text="Encrypt", height="2", width=23, bg="red", fg="white", bd=0, command=encrypt).place(x=10, y=250)
+    Button(text="Decrypt", height="2", width=23, bg="green", fg="white", bd=0, command=decrypt).place(x=200, y=250)
+    Button(text="Reset", height="2", width=50, bg="blue", fg="white", bd=0, command=reset).place(x=10, y=300)
+
+    screen.mainloop()
+
+main_screen()
